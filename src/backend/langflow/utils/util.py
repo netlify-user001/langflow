@@ -106,17 +106,15 @@ def build_template_from_class(name: str, type_to_cls_dict: Dict):
 
 
 def get_base_classes(cls):
-    bases = cls.__bases__
-    if not bases:
+    if not (bases := cls.__bases__):
         return []
-    else:
-        result = []
-        for base in bases:
-            if any(type in base.__module__ for type in ["pydantic", "abc"]):
-                continue
-            result.append(base.__name__)
-            result.extend(get_base_classes(base))
-        return result
+    result = []
+    for base in bases:
+        if any(type in base.__module__ for type in ["pydantic", "abc"]):
+            continue
+        result.append(base.__name__)
+        result.extend(get_base_classes(base))
+    return result
 
 
 def get_default_factory(module: str, function: str):
