@@ -101,26 +101,28 @@ def get_tool_signature(name: str):
 
     tool_type = all_tools[name]
 
-    if tool_type in _BASE_TOOLS:
+    if (
+        tool_type in _BASE_TOOLS
+        or tool_type not in _LLM_TOOLS
+        and tool_type not in _EXTRA_LLM_TOOLS
+        and tool_type not in _EXTRA_OPTIONAL_TOOLS
+    ):
         params = []
     elif tool_type in _LLM_TOOLS:
         params = ["llm"]
     elif tool_type in _EXTRA_LLM_TOOLS:
         _, extra_keys = _EXTRA_LLM_TOOLS[tool_type]
         params = ["llm"] + extra_keys
-    elif tool_type in _EXTRA_OPTIONAL_TOOLS:
+    else:
         _, extra_keys = _EXTRA_OPTIONAL_TOOLS[tool_type]
         params = extra_keys
-    else:
-        params = []
-
     template = {
         param: (type_dict[param].copy() if param == "llm" else type_dict["str"].copy())
         for param in params
     }
 
     # Remove required from aiosession
-    if "aiosession" in template.keys():
+    if "aiosession" in template:
         template["aiosession"]["required"] = False
         template["aiosession"]["show"] = False
 
